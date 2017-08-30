@@ -1,10 +1,11 @@
-FROM openjdk:8
+FROM openjdk:8-alpine
 
-RUN echo "deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8" | tee /etc/apt/sources.list.d/bazel.list; \
-curl https://bazel.build/bazel-release.pub.gpg | apt-key add - ; \
-apt-get update && apt-get install bazel -y && apt-get clean; \
-bazel && mkdir /build
-# need to extract stuff on first run
+ARG version=0.5.4
 
-WORKDIR /build
+RUN apk add --no-cache --virtual .build-deps wget && \
+wget https://github.com/bazelbuild/bazel/releases/download/${version}/bazel-${version}-installer-linux-x86_64.sh && \
+chmod +x ./bazel-${version}-installer-linux-x86_64.sh && \
+./bazel-${version}-installer-linux-x86_64.sh && \
+apk del .build-deps
+
 CMD ["bazel"]
